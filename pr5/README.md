@@ -1,17 +1,92 @@
-# flutter_widgets_project
+# Практична робота №5 — Розробка віджетів у Flutter
 
-A new Flutter project.
+## Опис проєкту
 
-## Getting Started
+Навчальний Flutter-застосунок для демонстрації створення повторно використовуваних віджетів, анімацій, керування станом і тестування інтерфейсу.
 
-This project is a starting point for a Flutter application.
+Проєкт розробляється в межах дисципліни «Програмування мобільних платформ».
 
-A few resources to get you started if this is your first Flutter project:
+## Мета роботи
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
+- Створити власні `StatelessWidget` і `StatefulWidget`.
+- Реалізувати інтерактивні компоненти інтерфейсу.
+- Використати анімації для покращення взаємодії з користувачем.
+- Організувати керування станом застосунку.
+- Написати тести та підготувати вебверсію застосунку.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Запланована функціональність
+
+- **Профіль користувача** — відображення інформації про користувача.
+- **CustomButton** — повторно використовувана кнопка з різними станами.
+- **AnimatedCounter** — лічильник із плавними анімаціями.
+- **ProductCard** — картка товару з інтерактивними елементами.
+- **Каталог товарів** — відображення товарів у зручному адаптивному інтерфейсі.
+- **Керування станом** — оновлення даних інтерфейсу після дій користувача.
+
+Функціональність буде реалізовуватися поступово в процесі виконання практичної роботи.
+
+## Технології
+
+- Flutter
+- Dart
+- Material Design
+- ChangeNotifier для керування станом
+- Flutter Test для автоматизованого тестування
+- Git і GitHub для контролю версій
+
+## Структура проєкту
+
+```text
+pr5/
+├── lib/
+│   ├── main.dart
+│   ├── models/
+│   ├── screens/
+│   ├── services/
+│   ├── utils/
+│   └── widgets/
+├── test/
+│   └── widgets/
+├── docs/
+│   ├── architecture/
+│   ├── design/
+│   └── screenshots/
+├── pubspec.yaml
+└── README.md
+```
+
+## Запуск проєкту
+
+Переконайтеся, що Flutter встановлено та доступний у терміналі.
+
+```bash
+flutter pub get
+flutter run -d chrome
+```
+
+## Перевірка якості коду
+
+Аналіз коду:
+
+```bash
+flutter analyze
+```
+
+Запуск тестів:
+
+```bash
+flutter test
+```
+
+## Документація та демонстрація
+
+Матеріали будуть додані в міру виконання роботи:
+
+- Дизайн-система Figma — у підготовці.
+- Архітектурна документація — у підготовці.
+- Відеодемонстрація — у підготовці.
+- Вебверсія застосунку — у підготовці.
+
+## Авторство
+
+Практична робота №5 з дисципліни «Програмування мобільних платформ».
