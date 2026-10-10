@@ -124,10 +124,9 @@ flutter build web --base-href /Programming-for-mobile-platforms/
 ## Документація та демонстрація
 
 - **Архітектура:** [Переглянути архітектурну документацію](docs/architecture/app-architecture.md).
-- - **Дизайн-система Figma:** [Переглянути макет](https://www.figma.com/design/3yHa4ruzrpY57FRX2BFQqr/Flutter-Widgets-%E2%80%94-Design-System?node-id=0-1).
 - **Скриншоти:** [Головний екран](docs/screenshots/home-screen.png), [каталог товарів](docs/screenshots/product-catalog.png), [кошик та обране](docs/screenshots/cart-and-favorites.png).
-- **Figma:** посилання буде додано після створення дизайн-макета.
-- **Відеодемонстрація:** посилання буде додано після запису відео тривалістю 2–3 хвилини.
+- **Дизайн-система Figma:** [Переглянути макет](https://www.figma.com/design/3yHa4ruzrpY57FRX2BFQqr/Flutter-Widgets-%E2%80%94-Design-System?node-id=0-1).
+- **Відеодемонстрація:** https://youtu.be/fe-kL_cW40U
 
 ## Авторство
 
