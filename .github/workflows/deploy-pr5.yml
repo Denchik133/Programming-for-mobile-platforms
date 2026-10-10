@@ -42,7 +42,7 @@ jobs:
 
       - name: Build web
         working-directory: pr5
-        run: flutter build web --base-href /Programming-for-mobile-platforms/pr5/
+        run: flutter build web --base-href /Programming-for-mobile-platforms/
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
