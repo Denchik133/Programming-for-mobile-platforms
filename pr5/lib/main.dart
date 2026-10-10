@@ -7,6 +7,7 @@ import 'utils/app_theme.dart';
 import 'widgets/animated_counter.dart';
 import 'widgets/product_card.dart';
 import 'widgets/profile_widget.dart';
+import 'screens/component_showcase_screen.dart';
 
 void main() {
   runApp(const WidgetsShowcaseApp());
@@ -126,6 +127,17 @@ class _HomeScreenState extends State<HomeScreen> {
                   label: Text('${_appState.favoritesCount}'),
                   isLabelVisible: _appState.favoritesCount > 0,
                   child: const Icon(Icons.favorite_border),
+                ),
+              );
+            },
+          ),
+          IconButton(
+            tooltip: 'Демонстрація компонентів',
+            icon: const Icon(Icons.widgets_outlined),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (context) => const ComponentShowcaseScreen(),
                 ),
               );
             },
