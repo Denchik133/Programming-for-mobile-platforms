@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_widgets_project/models/product.dart';
@@ -88,5 +89,109 @@ void main() {
     await tester.pump();
 
     expect(addedProduct, equals(testProduct));
+  });
+
+  testWidgets('ProductCard animates image when tapped', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ProductCard(product: testProduct),
+          ),
+        ),
+      ),
+    );
+
+    final imageGesture = find
+        .ancestor(
+          of: find.byIcon(Icons.shopping_bag_outlined),
+          matching: find.byType(GestureDetector),
+        )
+        .first;
+
+    await tester.tap(imageGesture);
+    await tester.pump();
+
+    expect(tester.takeException(), isNull);
+
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
+
+    await tester.tap(imageGesture);
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('ProductCard synchronizes favorite when product updates', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ProductCard(product: testProduct),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Додати в обране'), findsOneWidget);
+
+    const updatedProduct = Product(
+      id: '1',
+      name: 'Навушники Pro',
+      description: 'Бездротові навушники з якісним звуком.',
+      price: 2499.99,
+      imageUrl: '',
+      isFavorite: true,
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ProductCard(product: updatedProduct),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byTooltip('Прибрати з обраного'), findsOneWidget);
+  });
+
+  testWidgets('ProductCard displays fallback when network image fails', (
+    WidgetTester tester,
+  ) async {
+    const productWithImage = Product(
+      id: '2',
+      name: 'Товар із зображенням',
+      description: 'Тест помилки зображення.',
+      price: 100,
+      imageUrl: 'https://example.invalid/image.png',
+    );
+
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: SingleChildScrollView(
+            child: ProductCard(product: productWithImage),
+          ),
+        ),
+      ),
+    );
+
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(
+      find.byIcon(Icons.image_not_supported_outlined),
+      findsOneWidget,
+    );
+    expect(tester.takeException(), isNull);
   });
 }
