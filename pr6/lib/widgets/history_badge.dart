@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 
-class HistoryBadge extends StatelessWidget {
-  final int count;
+import '../state/counter_scope.dart';
 
-  const HistoryBadge({
-    super.key,
-    required this.count,
-  });
+class HistoryBadge extends StatelessWidget {
+  const HistoryBadge({super.key});
 
   @override
   Widget build(BuildContext context) {
     debugPrint('build: HistoryBadge');
+
+    final count = CounterScope.of(context).historyCount;
 
     return Padding(
       padding: const EdgeInsets.only(right: 16),

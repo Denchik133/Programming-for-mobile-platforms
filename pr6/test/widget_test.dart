@@ -10,7 +10,7 @@ void main() {
     expect(find.text('Лічильник з історією'), findsOneWidget);
     expect(find.text('Поточне значення'), findsOneWidget);
     expect(find.text('Крок зміни'), findsOneWidget);
-    expect(find.text('Записів в історії: 0'), findsOneWidget);
+    expect(find.text('Кількість записів в історії'), findsOneWidget);
     expect(find.text('0'), findsNWidgets(2));
   });
 }

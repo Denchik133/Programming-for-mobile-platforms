@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../models/counter_data.dart';
-import '../screens/history_screen.dart';
+import '../state/counter_scope.dart';
 import '../widgets/history_badge.dart';
+import 'history_screen.dart';
+import '../widgets/counter_value.dart';
 
 class CounterScreen extends StatefulWidget {
   const CounterScreen({super.key});
@@ -12,11 +13,13 @@ class CounterScreen extends StatefulWidget {
 }
 
 class _CounterScreenState extends State<CounterScreen> {
-  final CounterData _data = CounterData();
   int _step = 1;
 
   void _changeCounter(int difference, String action) {
-    if (difference < 0 && _data.value + difference < 0) {
+    final counterState = CounterScope.read(context);
+    final newValue = counterState.value + difference;
+
+    if (newValue < 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Значення лічильника не може бути від’ємним'),
@@ -25,40 +28,34 @@ class _CounterScreenState extends State<CounterScreen> {
       return;
     }
 
-    setState(() {
-      _data.changeValue(
-        newValue: _data.value + difference,
-        action: action,
-      );
-    });
+    counterState.changeValue(
+      newValue: newValue,
+      action: action,
+    );
   }
 
   void _resetCounter() {
-    if (_data.value == 0) {
+    final counterState = CounterScope.read(context);
+
+    if (counterState.value == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Лічильник уже дорівнює нулю')),
+        const SnackBar(
+          content: Text('Лічильник уже дорівнює нулю'),
+        ),
       );
       return;
     }
 
-    setState(() {
-      _data.changeValue(
-        newValue: 0,
-        action: 'Скидання',
-      );
-    });
+    counterState.changeValue(
+      newValue: 0,
+      action: 'Скидання',
+    );
   }
 
   void _openHistory() {
     Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (context) => HistoryScreen(
-          history: List.unmodifiable(_data.history),
-          onClearHistory: () {
-            setState(_data.clearHistory);
-            Navigator.of(context).pop();
-          },
-        ),
+        builder: (_) => const HistoryScreen(),
       ),
     );
   }
@@ -71,7 +68,7 @@ class _CounterScreenState extends State<CounterScreen> {
       appBar: AppBar(
         title: const Text('Лічильник з історією'),
         actions: [
-          HistoryBadge(count: _data.history.length),
+          const HistoryBadge(),
           IconButton(
             tooltip: 'Відкрити історію',
             onPressed: _openHistory,
@@ -90,10 +87,7 @@ class _CounterScreenState extends State<CounterScreen> {
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 12),
-              Text(
-                '${_data.value}',
-                style: Theme.of(context).textTheme.displayLarge,
-              ),
+              const CounterValue(),
               const SizedBox(height: 28),
               const Text('Крок зміни'),
               const SizedBox(height: 8),
@@ -135,7 +129,7 @@ class _CounterScreenState extends State<CounterScreen> {
                 label: const Text('Скинути'),
               ),
               const SizedBox(height: 24),
-              Text('Записів в історії: ${_data.history.length}'),
+              const Text('Кількість записів в історії'),
               const SizedBox(height: 12),
               FilledButton.tonalIcon(
                 onPressed: _openHistory,
