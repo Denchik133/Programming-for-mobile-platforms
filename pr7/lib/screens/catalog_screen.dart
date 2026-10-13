@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -22,11 +23,11 @@ class CatalogScreen extends StatelessWidget {
         title: const Text('Мій магазин'),
         actions: [
           IconButton(
-            tooltip: 'Кошик',
+            tooltip: 'Відкрити кошик',
             onPressed: () => Navigator.pushNamed(context, '/cart'),
             icon: Selector<CartModel, int>(
               selector: (_, cart) => cart.itemCount,
-              builder: (_, count, _) {
+              builder: (context, count, child) {
                 return Badge(
                   label: Text('$count'),
                   isLabelVisible: count > 0,
@@ -38,9 +39,8 @@ class CatalogScreen extends StatelessWidget {
         ],
       ),
       body: switch (status) {
-        CatalogStatus.initial || CatalogStatus.loading => const Center(
-          child: CircularProgressIndicator(),
-        ),
+        CatalogStatus.initial || CatalogStatus.loading =>
+          const Center(child: CircularProgressIndicator()),
         CatalogStatus.error => _buildError(context),
         CatalogStatus.success => _buildCatalog(context),
       },
@@ -58,13 +58,22 @@ class CatalogScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.cloud_off, size: 56),
+            const Icon(
+              Icons.cloud_off_outlined,
+              size: 56,
+            ),
             const SizedBox(height: 16),
-            Text(message ?? 'Не вдалося завантажити товари'),
+            Text(
+              message ?? 'Не вдалося завантажити товари',
+              textAlign: TextAlign.center,
+            ),
             const SizedBox(height: 16),
-            FilledButton(
-              onPressed: () => context.read<CatalogModel>().loadProducts(),
-              child: const Text('Повторити'),
+            FilledButton.icon(
+              onPressed: () {
+                context.read<CatalogModel>().loadProducts();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('Спробувати ще раз'),
             ),
           ],
         ),
@@ -91,42 +100,46 @@ class CatalogScreen extends StatelessWidget {
           height: 60,
           child: ListView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            children: [
-              for (final category in categories)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: ChoiceChip(
-                    label: Text(category),
-                    selected: category == selectedCategory,
-                    onSelected: (_) {
-                      context.read<CatalogModel>().setCategory(category);
-                    },
-                  ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 10,
+            ),
+            children: categories.map((category) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(category),
+                  selected: selectedCategory == category,
+                  onSelected: (_) {
+                    context.read<CatalogModel>().setCategory(category);
+                  },
                 ),
-            ],
+              );
+            }).toList(),
           ),
         ),
         Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsets.all(12),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 260,
-              mainAxisExtent: 235,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            itemCount: products.length,
-            itemBuilder: (context, index) {
-              return ProductCard(product: products[index]);
-            },
-          ),
+          child: products.isEmpty
+              ? const Center(child: Text('Товарів немає'))
+              : GridView.builder(
+                  padding: const EdgeInsets.all(12),
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    childAspectRatio: 0.68,
+                  ),
+                  itemCount: products.length,
+                  itemBuilder: (context, index) {
+                    return ProductCard(product: products[index]);
+                  },
+                ),
         ),
       ],
     );
   }
 }
-
 
 class ProductCard extends StatelessWidget {
   const ProductCard({
@@ -139,12 +152,6 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     debugPrint('build: ProductCard ${product.id}');
-
-    final isInCart = context.select<CartModel, bool>(
-      (cart) => cart.items.any(
-        (item) => item.product.id == product.id,
-      ),
-    );
 
     return Card(
       clipBehavior: Clip.antiAlias,
@@ -159,9 +166,7 @@ class ProductCard extends StatelessWidget {
                   Navigator.push(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (_) => ProductScreen(
-                        product: product,
-                      ),
+                      builder: (_) => ProductScreen(product: product),
                     ),
                   );
                 },
@@ -209,16 +214,28 @@ class ProductCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-                IconButton(
-                  tooltip: 'Додати до кошика',
-                  onPressed: () {
-                    context.read<CartModel>().addProduct(product);
+                Consumer<CartModel>(
+                  builder: (context, cart, child) {
+                    debugPrint(
+                      'Consumer rebuild: ProductCard ${product.id}',
+                    );
+
+                    final isInCart = cart.items.any(
+                      (item) => item.product.id == product.id,
+                    );
+
+                    return IconButton(
+                      tooltip: 'Додати до кошика',
+                      onPressed: () {
+                        context.read<CartModel>().addProduct(product);
+                      },
+                      icon: Icon(
+                        isInCart
+                            ? Icons.add_shopping_cart
+                            : Icons.shopping_cart_outlined,
+                      ),
+                    );
                   },
-                  icon: Icon(
-                    isInCart
-                        ? Icons.add_shopping_cart
-                        : Icons.shopping_cart_outlined,
-                  ),
                 ),
               ],
             ),
