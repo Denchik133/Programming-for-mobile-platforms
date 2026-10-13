@@ -20,12 +20,13 @@ class ProductScreen extends StatelessWidget {
             onPressed: () {
               Navigator.pushNamed(context, '/cart');
             },
-            icon: Selector<CartModel, int>(
-              selector: (_, cart) => cart.itemCount,
-              builder: (_, count, _) {
+            icon:  Consumer<CartModel>(
+              builder: (context, cart, child) {
+                debugPrint('Consumer rebuild: ProductScreen cart badge');
+                
                 return Badge(
-                  label: Text('$count'),
-                  isLabelVisible: count > 0,
+                  label: Text('${cart.itemCount}'),
+                  isLabelVisible: cart.itemCount > 0,
                   child: const Icon(Icons.shopping_cart_outlined),
                 );
               },
