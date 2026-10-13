@@ -19,7 +19,7 @@ class CartScreen extends StatelessWidget {
       (cart) => cart.totalPrice,
     );
 
-    final itemCount = context.select<CartModel, int>((cart) => cart.itemCount);
+    final itemCount = context.watch<CartModel>().itemCount;
 
     final isLoading = context.select<OrderModel, bool>(
       (order) => order.isLoading,
