@@ -214,16 +214,17 @@ class ProductCard extends StatelessWidget {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
-                Consumer<CartModel>(
-                  builder: (context, cart, child) {
-                    debugPrint(
-                      'Consumer rebuild: ProductCard ${product.id}',
-                    );
-
-                    final isInCart = cart.items.any(
+                Selector<CartModel, bool>(
+                  selector: (context, cart) {
+                    return cart.items.any(
                       (item) => item.product.id == product.id,
                     );
-
+                  },
+                  builder: (context, isInCart, child) {
+                    debugPrint(
+                      'Selector rebuild: ProductCard ${product.id}',
+                    );
+                    
                     return IconButton(
                       tooltip: 'Додати до кошика',
                       onPressed: () {
@@ -231,8 +232,8 @@ class ProductCard extends StatelessWidget {
                       },
                       icon: Icon(
                         isInCart
-                            ? Icons.add_shopping_cart
-                            : Icons.shopping_cart_outlined,
+                        ? Icons.add_shopping_cart
+                        : Icons.shopping_cart_outlined,
                       ),
                     );
                   },
