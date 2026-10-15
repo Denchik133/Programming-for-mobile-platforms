@@ -1,247 +1,80 @@
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 
-import '../models/cart_model.dart';
-import '../models/catalog_model.dart';
-import '../models/product.dart';
-import 'product_screen.dart';
+import '../models/book.dart';
 
 class CatalogScreen extends StatelessWidget {
-  const CatalogScreen({super.key});
+  final String? genre;
+
+  const CatalogScreen({super.key, this.genre});
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('build: CatalogScreen');
+    final genres = sampleBooks.map((book) => book.genre).toSet().toList();
 
-    final status = context.select<CatalogModel, CatalogStatus>(
-      (catalog) => catalog.status,
-    );
+    final books = genre == null
+        ? sampleBooks
+        : sampleBooks.where((book) => book.genre == genre).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Мій магазин'),
-        actions: [
-          IconButton(
-            tooltip: 'Відкрити кошик',
-            onPressed: () => Navigator.pushNamed(context, '/cart'),
-            icon: Selector<CartModel, int>(
-              selector: (_, cart) => cart.itemCount,
-              builder: (context, count, child) {
-                return Badge(
-                  label: Text('$count'),
-                  isLabelVisible: count > 0,
-                  child: const Icon(Icons.shopping_cart_outlined),
+      appBar: AppBar(title: const Text('Каталог бібліотеки')),
+      body: Column(
+        children: [
+          SizedBox(
+            height: 58,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.all(8),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: FilterChip(
+                    label: const Text('Усі'),
+                    selected: genre == null,
+                    onSelected: (_) => context.go('/catalog'),
+                  ),
+                ),
+                ...genres.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: FilterChip(
+                      label: Text(item),
+                      selected: genre == item,
+                      onSelected: (_) => context.go(
+                        '/catalog?genre=${Uri.encodeQueryComponent(item)}',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              itemCount: books.length,
+              itemBuilder: (context, index) {
+                final book = books[index];
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 5,
+                  ),
+                  child: ListTile(
+                    leading: const CircleAvatar(
+                      child: Icon(Icons.menu_book),
+                    ),
+                    title: Text(book.title),
+                    subtitle: Text('${book.author}\n${book.genre}'),
+                    isThreeLine: true,
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.go('/catalog/book/${book.id}'),
+                  ),
                 );
               },
             ),
           ),
         ],
-      ),
-      body: switch (status) {
-        CatalogStatus.initial || CatalogStatus.loading =>
-          const Center(child: CircularProgressIndicator()),
-        CatalogStatus.error => _buildError(context),
-        CatalogStatus.success => _buildCatalog(context),
-      },
-    );
-  }
-
-  Widget _buildError(BuildContext context) {
-    final message = context.select<CatalogModel, String?>(
-      (catalog) => catalog.errorMessage,
-    );
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(
-              Icons.cloud_off_outlined,
-              size: 56,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              message ?? 'Не вдалося завантажити товари',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            FilledButton.icon(
-              onPressed: () {
-                context.read<CatalogModel>().loadProducts();
-              },
-              icon: const Icon(Icons.refresh),
-              label: const Text('Спробувати ще раз'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCatalog(BuildContext context) {
-    final categories = context.select<CatalogModel, List<String>>(
-      (catalog) => catalog.categories,
-    );
-
-    final selectedCategory = context.select<CatalogModel, String>(
-      (catalog) => catalog.selectedCategory,
-    );
-
-    final products = context.select<CatalogModel, List<Product>>(
-      (catalog) => catalog.filteredProducts,
-    );
-
-    return Column(
-      children: [
-        SizedBox(
-          height: 60,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 10,
-            ),
-            children: categories.map((category) {
-              return Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: ChoiceChip(
-                  label: Text(category),
-                  selected: selectedCategory == category,
-                  onSelected: (_) {
-                    context.read<CatalogModel>().setCategory(category);
-                  },
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-        Expanded(
-          child: products.isEmpty
-              ? const Center(child: Text('Товарів немає'))
-              : GridView.builder(
-                  padding: const EdgeInsets.all(12),
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.68,
-                  ),
-                  itemCount: products.length,
-                  itemBuilder: (context, index) {
-                    return ProductCard(product: products[index]);
-                  },
-                ),
-        ),
-      ],
-    );
-  }
-}
-
-class ProductCard extends StatelessWidget {
-  const ProductCard({
-    super.key,
-    required this.product,
-  });
-
-  final Product product;
-
-  @override
-  Widget build(BuildContext context) {
-    debugPrint('build: ProductCard ${product.id}');
-
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Padding(
-        padding: const EdgeInsets.all(8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute<void>(
-                      builder: (_) => ProductScreen(product: product),
-                    ),
-                  );
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Center(
-                        child: Image.network(
-                          product.imageUrl,
-                          fit: BoxFit.contain,
-                          width: double.infinity,
-                          errorBuilder: (context, error, stackTrace) {
-                            return const Icon(
-                              Icons.image_not_supported_outlined,
-                              size: 56,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${product.price.toStringAsFixed(0)} грн',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    product.category,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.bodySmall,
-                  ),
-                ),
-                Selector<CartModel, bool>(
-                  selector: (context, cart) {
-                    return cart.items.any(
-                      (item) => item.product.id == product.id,
-                    );
-                  },
-                  builder: (context, isInCart, child) {
-                    debugPrint(
-                      'Selector rebuild: ProductCard ${product.id}',
-                    );
-                    
-                    return IconButton(
-                      tooltip: 'Додати до кошика',
-                      onPressed: () {
-                        context.read<CartModel>().addProduct(product);
-                      },
-                      icon: Icon(
-                        isInCart
-                        ? Icons.add_shopping_cart
-                        : Icons.shopping_cart_outlined,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
       ),
     );
   }
