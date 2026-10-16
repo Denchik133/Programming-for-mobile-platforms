@@ -1,0 +1,17 @@
+[
+  {
+    "id": "S001",
+    "firstName": "Denys",
+    "lastName": "Klymenko",
+    "birthDate": "2008-05-10T00:00:00.000",
+    "enrolledCourses": [
+      "Dart"
+    ],
+    "grades": {
+      "Dart": [
+        90,
+        85
+      ]
+    }
+  }
+]
